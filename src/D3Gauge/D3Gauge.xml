@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="D3Gauge.widget.D3Gauge" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>GaugeChart</name>
+    <description>Create an animated Gauge Chart on your webpage using the D3 library.</description>
+    <icon>
+	
+	iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAA
+	ACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAB3RJTU
+	UH4AsJDSAJNMjA7AAAA1xJREFUSMft1U2IlVUYB/Dfed9737nTjNiMjjFaI0MxOllJIiRBUIs+MJJyIbkILWiij0VFkqu
+	KFkUtWhhFJRqmprlQoiSoRR+URfmBRImQIWWNjjWkTjNz5977nhbdO84MKbQL8lkdnvOc5//8z3PO/+GC/dcsnG+z9sQi
+	p1es1PT6a0J5lNZ2Yc1WoetK8tp4XJIkisXiOfMk/+QcWj3XcN8VxvqPKz3/HEkoYa4kLBbcgCXowXTI81y5XDY6OmrVq
+	lXnZ3Kkb4HZp05SzISB38WO9svl+TIx3ibPe7VObw9rtxdD98JcXjuDo/gc7+IrlCHGqFQqjectNBbx5btU1u9SW9ApJq
+	FN+/Q+1eoDYuwWwrAQjshrB1TKgyhiDubhMfThPbyIAyEEY2NjsiybzKTSS7W3jYtaelSrL8nz24VwQghvS5OdsZgdMq3
+	1VPO6b6tjtTyoVUt1oJuwGtfjZ6zFNsRCoSBN079BRlZ0kBYoFHpUKpvk+RJJsluh8HS25di+sZWdYrFIkgiPb5C0dIh7
+	dgl3PEJzK7TX2axFikexAbIsE0bu62ZsjBDaVSqb5XGpEDbGLFsTqtXB2N4mnPwNsjrzcp18C0bidwN5ur/hsgKv1B/US
+	nwIScwy6f5fqFYflMelkuR9WbYmxHxQjA2Adjxcr7ADXbgHxbBg1sS3swNPohXP4hJIwukzatfO6ZHHPiH8Kk2fUq0Oql
+	Y1bz/eONyLUQxiEZbjmwarpqamiUCbsRXX1dlIDA+T53eKsUsIW5KfBg7ElpLStmUTDx7HbMzCQgyhv37/pgBV8Gq9oLs
+	xM4kzZrSI8VYhDEnTnfllM4VKRQjrJ4L8iDewD01oqzf6Fthzc9tUoIP4FNdgcRIqlS4xzsfhmBUPx6YmzZuOTf2tsV7ZQ
+	nxUb/rHmA/zphXOxofQYPMpmrEkkdcuRYcQjsbZnae1tEzWrzi+vBHf42ucqP+PvfDCoT/HgyZo2A+NfiY4Iwm7peGT4lt
+	f5vHi1sniFhAjfIEPkGMj1tUlxTNXtU5l0rjid3AwDD/UnUiSNBazPN17qLb5s+j+s4HivZ1GhmpCOLeMl3YMTPKVy+XGV
+	oJYEEOuFvOgqvIH/cuvnpzkzf5/PT9qtZo0TSNqF6bp/9j+AqEsK/sk22Q4AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE2LTE
+	xLTA5VDEzOjMyOjEwKzAxOjAwrrLs8AAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxNi0xMS0wOVQxMzozMjowOSswMTowMIbdE
+	QEAAAAZdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuMTJDBGvsAAAAAElFTkSuQmCC
+	
+	</icon>
+    <properties>
+		<property key="chartTitle" type="string" required="false" defaultValue="">
+            <caption>Chart Title</caption>
+            <category>General</category>
+            <description>The title that will be displayed inside the arch.</description>
+        </property>
+		<property key="textColor" type="string" required="false" defaultValue="#816c6a">
+            <caption>Text Color</caption>
+            <category>General</category>
+            <description>The color being used in the title, ticks and display value.</description>
+        </property>
+		<property key="size" type="integer" required="true" defaultValue="400">
+            <caption>Size</caption>
+            <category>General</category>
+            <description>The size of the gauge.</description>
+        </property>
+        <property key="valueAttr" type="attribute" required="true" defaultValue="">
+            <caption>Value</caption>
+            <category>General</category>
+            <description>The value the needle will be pointing at.</description>
+            <attributeTypes>
+                <attributeType name="Decimal" />
+            </attributeTypes>
+        </property>
+		<property key="displayValue" type="boolean" defaultValue="true">
+    			<caption>Display value</caption>
+    			<category>General</category>
+    			<description>Decide whether the value will be displayed inside the arc or not.</description>
+    	</property>
+        <property key="rounding" type="boolean" required="true" defaultValue="false">
+            <caption>Rounding</caption>
+            <category>General</category>
+            <description>Decide whether the decimal values should be rounded to integer level (via Math.round).</description>
+        </property>
+        <property key="minValueAttr" type="attribute" required="true">
+            <caption>Minimum Value</caption>
+            <category>General</category>
+            <description>Minimum value for the arc of the gauge.</description>
+            <attributeTypes>
+                <attributeType name="Decimal" />
+            </attributeTypes>
+        </property>
+        <property key="maxValueAttr" type="attribute" required="true">
+            <caption>Maximum Value</caption>
+            <category>General</category>
+            <description>Maximum value for the arc of the gauge.</description>
+            <attributeTypes>
+                <attributeType name="Decimal" />
+            </attributeTypes>
+        </property>
+        <property key="colorArray" type="object" isList="true" required="false">
+            <caption>Color Gauge Sections</caption>
+            <category>Arc</category>
+            <description>Set colors per sections of the gauge. Irrelevant of what minimum and maximum value are set, stick to a percentage from 0 to 100 here.</description>
+            <properties>
+                <property key="rangeStart" type="integer" defaultValue="0">
+                    <caption>Range Start</caption>
+                    <category>Arc</category>
+                    <description>The starting percentage of this section of the gauge.</description>
+                </property>
+                <property key="rangeEnd" type="integer" defaultValue="10">
+                    <caption>Range End</caption>
+                    <category>Arc</category>
+                    <description>The ending percentage of this section of the gauge.</description>
+                </property>
+                <property key="colorSection" type="string" defaultValue="F9F9F9">
+                    <caption>Color</caption>
+                    <category>Arc</category>
+                    <description>The color for the section. 
+					
+					Example colors: Red: #F02828, Orange: #FE6A00, Yellow: #E8DD11, Lightgreen: #82E042, Green: #089F50</description>
+                </property>
+            </properties>
+        </property>
+		<property key="tickBorder" type="integer" required="true" defaultValue="1">
+            <caption>Sections Border</caption>
+            <category>Arc</category>
+            <description>The size of the whitespace to appear next to each Tick / Gauge Section. 0 is none, default 1.</description>
+        </property>
+		<property key="ringWidth" type="integer" required="true" defaultValue="30">
+            <caption>Ring Width</caption>
+            <category>Arc</category>
+            <description>The width of the arc sections</description>
+        </property>
+		<property key="pointerColor" type="string" required="false" defaultValue="#808080">
+            <caption>Needle Color</caption>
+            <category>Needle</category>
+            <description>The color being used in the Needle</description>
+        </property>
+		<property key="needleLength" type="integer" required="true" defaultValue="120">
+            <caption>Needle Length</caption>
+            <category>Needle</category>
+            <description>The length of the Needle.</description>
+        </property>
+		<property key="needleRadius" type="integer" required="true" defaultValue="10">
+            <caption>Needle Radius</caption>
+            <category>Needle</category>
+            <description>The radius of the circle to appear at the bottom of the Needle</description>
+        </property>
+		 <property key="easing" type="enumeration" required="true" defaultValue="elastic">
+            <caption>Easing</caption>
+            <category>Animation</category>
+            <description>Determines which animation will be shown for the Needle at drawing of the Gauge. See http://bl.ocks.org/hunzy/9929724 for explanation</description>
+			<enumerationValues>
+				<enumerationValue key="linear">linear</enumerationValue>
+				<enumerationValue key="quad">quad</enumerationValue>
+				<enumerationValue key="cubic">cubic</enumerationValue>	
+				<enumerationValue key="sin">sin</enumerationValue>	
+				<enumerationValue key="exp">exp</enumerationValue>	
+				<enumerationValue key="circle">circle</enumerationValue>	
+				<enumerationValue key="elastic">elastic</enumerationValue>	
+				<enumerationValue key="back">back</enumerationValue>	
+				<enumerationValue key="bounce">bounce</enumerationValue>						
+			</enumerationValues>
+		</property>
+		<property key="easingDuration" type="integer" required="true" defaultValue="4000">
+            <caption>Easing Duration</caption>
+            <category>Animation</category>
+            <description>The duration of the animation in ms. So, 1000 is 1 second.</description>
+        </property>
+        <property key="onClickMF" type="microflow" required="false" defaultValue="">
+            <caption>Microflow</caption>
+            <category>Interaction</category>
+            <description>The microflow to execute on click.</description>
+            <returnType type="Boolean" />
+        </property>
+    </properties>
+</widget>
