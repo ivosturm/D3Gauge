@@ -4,9 +4,9 @@
     ========================
 
     @file      : D3Gauge.js
-    @version   : 1.0.0
+    @version   : 1.0.1
     @author    : Ivo Sturm
-    @date      : 20-11-2016
+    @date      : 17-7-2017
     @copyright : First Consulting
     @license   : Apache 2
 
@@ -14,6 +14,9 @@
     ========================
     Add a gauge chart based on the D3 library to your application. Features include: full formatting of the arc and needle, including color coding of different sections in the gauge,
 	animating the way the pointer behaves, adding a microflow on click of the gauge and rounding of values;
+	
+	v1.0.1 	Fix for value positioning when using multiple gauge charts on one page.
+			Made height of chart 2/3 width of the chart
 */
 
 // Required module list. 
@@ -163,7 +166,7 @@ define([
 			
 			// Hide the value in the bottom of the pointer, if set in the Modeler.
 			if (this.displayValue){
-				var pointer = d3.select(".pointer");		
+				var pointer = d3.select("#" + this.id + " .pointer");		
 				pointer.append("text")
 					.attr('id', "Value")
 					.attr("font-size",20)
@@ -350,7 +353,7 @@ define([
 						.append('svg:svg')
 							.attr('class', 'gauge')
 							.attr('width', config.clipWidth)
-							.attr('height', config.clipHeight);
+							.attr('height', config.clipHeight * (2/3));
 					
 					var centerTx = centerTranslation();
 					
