@@ -4,9 +4,9 @@
     ========================
 
     @file      : D3Gauge.js
-    @version   : 1.0.1
+    @version   : 1.1.0
     @author    : Ivo Sturm
-    @date      : 17-7-2017
+    @date      : 18-7-2017
     @copyright : First Consulting
     @license   : Apache 2
 
@@ -17,6 +17,7 @@
 	
 	v1.0.1 	Fix for value positioning when using multiple gauge charts on one page.
 			Made height of chart 2/3 width of the chart
+	v1.1.0  Added validaty check on ranges configured in Modeler, since people configure this wrongly as seen on the forum
 */
 
 // Required module list. 
@@ -48,6 +49,7 @@ define([
         _handles: null,
         _contextObj: null,
 		_progressID: null,
+		_logNode: 'D3 Gauge widget: ',
 
         // dojo.declare.constructor is called to construct the widget instance. Implement to initialize non-primitive properties.
         constructor: function() {
@@ -141,50 +143,94 @@ define([
 				this.areaArray.sort(function(a, b) {
 					return parseFloat(a.end) - parseFloat(b.end);
 				});
+			} else {
+				console.error(this._logNode + ' Please configure the Color Gauge Sections part in the Arc tab of the widget settings!');
 			}
+			
+			// check if range starts with 0 and ends with 1
+			var rangeCorrect = true;
+			var rangeMessage = "";
+			var maxFound = false;
+			
+			for (var k = 0 ; k < this.areaArray.length ; k++){
+				
+				// check if first object starts at zero
+				if (k === 0){
+					if (this.areaArray[k].start != 0){
+						rangeCorrect = false;
+						rangeMessage = 'The first Range should start at 0. Please correct the widget settings! ';
+					} 
+				} 
+				// check if subsequent objects are joining
+				else {
+					if (rangeEnd != this.areaArray[k].start){
+						rangeCorrect = false;
+						rangeMessage += 'Subsequent ranges should start at the end of the previous range. Please correct the widget settings! ';
+					}
+				}
+				// store rangeEnd so can be used in next iteration to check the rangeStart;	
+				var rangeEnd = this.areaArray[k].end;
+				
+				if (this.areaArray[k].end == 1){
+					maxFound = true;
+				}
+			}
+			
+			if (maxFound == false) {
+				rangeMessage += 'The last range should end at 100. Please correct the widget settings!';
+			}
+			
+			if (maxFound && rangeMessage == ""){
 		
-			// Add modeler configurations to be picked up by d3
-			var config = {
-				size: this.size,
-				clipWidth: this.size,
-				clipHeight: this.size,
-				ringWidth: this.ringWidth,
-				maxValue: maxValue,
-				minValue: minValue,
-				transitionMs: this.easingDuration,
-				majorTicks: this.noTicks,
-				areas: this.areaArray,
-				tickBorder: this.tickBorder,
-				needleRadius: this.needleRadius,
-				needleLength: this.needleLength
-			};
-			// Create the chart.
-			var powerGauge = this._createChart(this.d3Gauge, config);
-			
-			// Set the pointer to it's value with some added easing
-			powerGauge.render(value,this.textColor,this.pointerColor,this.easing);
-			
-			// Hide the value in the bottom of the pointer, if set in the Modeler.
-			if (this.displayValue){
-				var pointer = d3.select("#" + this.id + " .pointer");		
-				pointer.append("text")
+				// Add modeler configurations to be picked up by d3
+				var config = {
+					size: this.size,
+					clipWidth: this.size,
+					clipHeight: this.size,
+					ringWidth: this.ringWidth,
+					maxValue: maxValue,
+					minValue: minValue,
+					transitionMs: this.easingDuration,
+					majorTicks: this.noTicks,
+					areas: this.areaArray,
+					tickBorder: this.tickBorder,
+					needleRadius: this.needleRadius,
+					needleLength: this.needleLength
+				};
+				// Create the chart.
+				var powerGauge = this._createChart(this.d3Gauge, config);
+				
+				// Set the pointer to it's value with some added easing
+				powerGauge.render(value,this.textColor,this.pointerColor,this.easing);
+				
+				// Hide the value in the bottom of the pointer, if set in the Modeler.
+				if (this.displayValue){
+					var pointer = d3.select("#" + this.id + " .pointer");		
+					pointer.append("text")
+						.attr('id', "Value")
+						.attr("font-size",20)
+						.attr("text-anchor","middle")
+						.attr("dy","1.5em")
+						.style('fill', this.textColor)
+						.text(value);
+				}
+				// Set the chart title.
+				var gauge = d3.select(".gauge");
+				gauge.append("text")
 					.attr('id', "Value")
 					.attr("font-size",20)
-					.attr("text-anchor","middle")
-					.attr("dy","1.5em")
+					.attr("text-anchor","top")
+					.attr("dy","-1.5em")
+					.attr("dx","5em")
 					.style('fill', this.textColor)
-					.text(value);
+					.text(this.chartTitle);
+			} else {
+				// place errormessage in browser console and where D3 Gauge should be shown
+				console.error(this._logNode + rangeMessage);
+				this.domNode.innerHTML = '<br>' + this._logNode + rangeMessage;
+				this.domNode.style.color = 'red';
+				this.domNode.style.fontStyle = 'italic';
 			}
-			// Set the chart title.
-			var gauge = d3.select(".gauge");
-			gauge.append("text")
-                .attr('id', "Value")
-                .attr("font-size",20)
-                .attr("text-anchor","top")
-                .attr("dy","-1.5em")
-				.attr("dx","5em")
-                .style('fill', this.textColor)
-				.text(this.chartTitle);
         },
 
         // Rerender the interface.
