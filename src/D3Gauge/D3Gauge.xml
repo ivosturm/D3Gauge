@@ -24,15 +24,10 @@
 	
 	</icon>
     <properties>
-		<property key="chartTitle" type="string" required="false" defaultValue="">
-            <caption>Chart Title</caption>
-            <category>General</category>
-            <description>The title that will be displayed inside the arch.</description>
-        </property>
-		<property key="textColor" type="string" required="false" defaultValue="#816c6a">
+	<property key="textColor" type="string" required="false" defaultValue="#816c6a">
             <caption>Text Color</caption>
             <category>General</category>
-            <description>The color being used in the title, ticks and display value.</description>
+            <description>The color being used in the ticks and display value.</description>
         </property>
 		<property key="size" type="integer" required="true" defaultValue="400">
             <caption>Size</caption>
