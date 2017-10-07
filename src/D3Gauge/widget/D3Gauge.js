@@ -4,9 +4,9 @@
     ========================
 
     @file      : D3Gauge.js
-    @version   : 1.1.0
+    @version   : 1.2.0
     @author    : Ivo Sturm
-    @date      : 18-7-2017
+    @date      : 7-10-2017
     @copyright : First Consulting
     @license   : Apache 2
 
@@ -18,6 +18,9 @@
 	v1.0.1 	Fix for value positioning when using multiple gauge charts on one page.
 			Made height of chart 2/3 width of the chart
 	v1.1.0  Added validaty check on ranges configured in Modeler, since people configure this wrongly as seen on the forum
+	v1.2.0  Upgrade to Mendix 7. Fixed deprecation on store.caller in mx.data.action. Changed to origin:
+		Fix for subscriptions trigger double creation of chart.
+		Stripped Chart Title setting. 
 */
 
 // Required module list. 
@@ -62,7 +65,7 @@ define([
         postCreate: function() {
             logger.debug(this.id + ".postCreate");
 			this.hideProgress();
-
+			this.powerGauge = null;
             
         },
 
@@ -197,15 +200,22 @@ define([
 					needleRadius: this.needleRadius,
 					needleLength: this.needleLength
 				};
-				// Create the chart.
-				var powerGauge = this._createChart(this.d3Gauge, config);
-				
-				// Set the pointer to it's value with some added easing
-				powerGauge.render(value,this.textColor,this.pointerColor,this.easing);
-				
+				// update old chart if already created
+				if (this.powerGauge){
+					this.powerGauge.update(value,config,this.easing);
+					if (this.displayValue){
+						var pointer = d3.selectAll("#" + this.id + " .pointer text").text(value);					
+					} 
+				} else {
+					// Create the chart.
+					this.powerGauge = this._createChart(this.d3Gauge, config);
+					
+					// Set the pointer to it's value with some added easing
+					this.powerGauge.render(value,this.textColor,this.pointerColor,this.easing);
+				}
 				// Hide the value in the bottom of the pointer, if set in the Modeler.
 				if (this.displayValue){
-					var pointer = d3.select("#" + this.id + " .pointer");		
+					var pointer = d3.selectAll("#" + this.id + " .pointer");		
 					pointer.append("text")
 						.attr('id', "Value")
 						.attr("font-size",20)
@@ -214,16 +224,6 @@ define([
 						.style('fill', this.textColor)
 						.text(value);
 				}
-				// Set the chart title.
-				var gauge = d3.select(".gauge");
-				gauge.append("text")
-					.attr('id', "Value")
-					.attr("font-size",20)
-					.attr("text-anchor","top")
-					.attr("dy","-1.5em")
-					.attr("dx","5em")
-					.style('fill', this.textColor)
-					.text(this.chartTitle);
 			} else {
 				// place errormessage in browser console and where D3 Gauge should be shown
 				console.error(this._logNode + rangeMessage);
@@ -488,9 +488,7 @@ define([
 							actionname: mf,
 							guids: [guid]
 						},
-						store: {
-							caller: this.mxform
-						},
+						origin: this.mxform,
 						callback: dojoLang.hitch(this, function (obj) {
 							if (cb && typeof cb === "function") {
 								cb(obj);
