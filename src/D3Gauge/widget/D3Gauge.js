@@ -4,9 +4,9 @@
     ========================
 
     @file      : D3Gauge.js
-    @version   : 1.2.0
+    @version   : 1.2.1
     @author    : Ivo Sturm
-    @date      : 7-10-2017
+    @date      : 2-5-2018
     @copyright : First Consulting
     @license   : Apache 2
 
@@ -21,6 +21,7 @@
 	v1.2.0  Upgrade to Mendix 7. Fixed deprecation on store.caller in mx.data.action. Changed to origin:
 		Fix for subscriptions trigger double creation of chart.
 		Stripped Chart Title setting. 
+	v1.2.1	Fix for non-zero starting value introducing ticks2 array.
 */
 
 // Required module list. 
@@ -122,7 +123,7 @@ define([
 			} else if(value <= minValue) {
 				value = minValue;
 			}
-			
+		
 			if (this.rounding){
 				value = this._roundWithPrecision(value,0);
 			}
@@ -138,8 +139,9 @@ define([
 						end : (colorArr[i].rangeEnd / 100),
 						color : colorArr[i].colorSection
 					};
-					this.areaArray.push(areaObj);				
+					this.areaArray.push(areaObj);	
 				}
+
 				this.noTicks = colorArr.length ;
 				
 				// always sort the array on the rangeEnd attribute. Will help if not put in right order in the Modeler.
@@ -224,6 +226,8 @@ define([
 						.style('fill', this.textColor)
 						.text(value);
 				}
+				
+				var texts =  d3.selectAll("#" + this.id + " .label text");
 			} else {
 				// place errormessage in browser console and where D3 Gauge should be shown
 				console.error(this._logNode + rangeMessage);
@@ -309,6 +313,7 @@ define([
 				var arc = undefined;
 				var scale = undefined;
 				var ticks = [];
+				var ticks2 = [];
 				var tickData = [];
 				var ratios = [];
 				var pointer = undefined;
@@ -332,13 +337,23 @@ define([
 						.range([0,1])
 						.domain([config.minValue, config.maxValue]);
 				
-					// build up ticks 
+					// build up angles 
 					var rangeOriginal = (config.maxValue - config.minValue);
 					for (var j = 0 ; j < config.areas.length ; j++){
 						if (j === 0){
 							ticks.push((config.areas[j].start) * rangeOriginal  );
 						} 
-						ticks.push((config.areas[j].end) * rangeOriginal );						
+						ticks.push( (config.areas[j].end) * rangeOriginal );
+					
+					}
+					//build up ticks
+					//2018-05-02 - Ivo Sturm - using a dummy ticks2 array to create ticks independent of the angles. This is needed to cater for scenario of non-zero starting value
+					for (var j = 0 ; j < config.areas.length ; j++){
+						if (j === 0){
+							ticks2.push(config.minValue + ((config.areas[j].start) * rangeOriginal)  );
+						} 
+						ticks2.push(config.minValue +  ((config.areas[j].end) * rangeOriginal) );
+					
 					}
 			
 					// build tickData and ratios based on ticks
@@ -420,7 +435,7 @@ define([
 							.attr('class', 'label')
 							.attr('transform', centerTx);	
 					lg.selectAll('text')
-							.data(ticks)
+							.data(ticks2)
 						.enter().append('text')
 							.attr('transform', function(d) {
 								var ratio = scale(d);
