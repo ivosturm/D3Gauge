@@ -4,9 +4,9 @@
     ========================
 
     @file      : D3Gauge.js
-    @version   : 1.2.1
+    @version   : 1.3.0
     @author    : Ivo Sturm
-    @date      : 2-5-2018
+    @date      : 12-5-2018
     @copyright : First Consulting
     @license   : Apache 2
 
@@ -22,6 +22,9 @@
 		Fix for subscriptions trigger double creation of chart.
 		Stripped Chart Title setting. 
 	v1.2.1	Fix for non-zero starting value introducing ticks2 array.
+	v1.3.0	New Feature: Added Gradient Coloring as option; 	
+			bugfix: Do not hide domNode anymore. In case of listview with DS MF update function was called twice,once not having a context object, hence hiding the domNode.
+
 */
 
 // Required module list. 
@@ -74,14 +77,13 @@ define([
         update: function(obj, callback) {
             logger.debug(this.id + ".update");
 			this.hideProgress();
-            this._contextObj = obj;
+			this._contextObj = obj;
 			var objGuid = this._contextObj ? this._contextObj.getGuid() : null;
-			
 			if (this.onClickMF){
 				this._setupEvents(objGuid);
 			}
-            this._resetSubscriptions();
-            this._updateRendering();
+			this._resetSubscriptions();
+			this._updateRendering();
 
             if (typeof callback !== "undefined") {
               callback();
@@ -200,7 +202,8 @@ define([
 					areas: this.areaArray,
 					tickBorder: this.tickBorder,
 					needleRadius: this.needleRadius,
-					needleLength: this.needleLength
+					needleLength: this.needleLength,
+					arcGradientColor: this.arcGradientColor
 				};
 				// update old chart if already created
 				if (this.powerGauge){
@@ -244,9 +247,8 @@ define([
             // Draw or reload.
             if (this._contextObj !== null) {
               this._drawChart();
-            } else {
-                dojoStyle.set(this.domNode, "display", "none"); // Hide widget dom node.
-            }
+            } 
+			// v1.3.0 do not hide domNode anymore. In case of listview with DS MF update function was called twice,once not having a context object, hence hiding the domNode.
 
         },
 
@@ -294,6 +296,8 @@ define([
 														
 					labelFormat					: d3.format(',g'),
 					labelInset					: 10,
+					
+					arcGradientColor			: true,
 										
 					arcColorFn: function(value){
 						for(var i=0;i<config.areas.length;i++){
@@ -422,14 +426,48 @@ define([
 							.attr('class', 'arc')
 							.attr('transform', centerTx)
 							.style('cursor', 'pointer');
-					
-					arcs.selectAll('path')
+
+					// generate gradient color if set from modeler
+					if (config.arcGradientColor){				
+						for (var j = 0 ; j < config.areas.length ; j++){
+							var gradient = svg.append('defs')
+							.append('linearGradient')
+							.attr('id', 'c-chart-gauge__gradient_' + j);
+							
+							gradient
+							  .append('stop')
+							  .attr('offset', '0%')
+							  .attr('stop-color', config.areas[j].color);
+							
+							if (j == config.areas.length - 1){
+								gradient
+								.append('stop')
+								.attr('offset', '0%')
+								.attr('stop-color', config.areas[j].color);
+							} else {
+								gradient
+								  .append('stop')
+								  .attr('offset', '100%')
+								  .attr('stop-color', config.areas[j + 1].color);
+							}
+						}
+
+						arcs.selectAll('path')
+							.data(tickData)
+						.enter().append('path')
+							.attr('d', arc)
+							.attr("fill", function(d,i){return "url(#c-chart-gauge__gradient_" + i + ")";});
+					} 
+					// else use set color
+					else {
+						arcs.selectAll('path')
 							.data(tickData)
 						.enter().append('path')
 							.attr('fill', function(d, i) {
 								return config.areas[i].color;
 							})
 							.attr('d', arc);
+					}						
 					
 					var lg = svg.append('g')
 							.attr('class', 'label')
